@@ -1,7 +1,7 @@
 Systematic-Literature-Review
 ============================
 
-Data extration and processing tools for a Systematic Literature Review. The general process assumed here consists in aggregating extracted data (author, year, title, abstract) into an csv file and screen the csv.
+Data extration and processing tools for a Systematic Literature Review. The general process assumed here consists in aggregating extracted data (author, year, title, abstract) into a csv file and screen the csv.
 
 
 ACM parser

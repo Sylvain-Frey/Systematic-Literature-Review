@@ -9,7 +9,7 @@ ACM parser
 
 This script extracts metadata from offline ACM pages. You will have to run your queries manually and save the resulting html on disk (maximum 20 papers per page). You can concatenate all pages together. Then, acm-parser will generate csv from the html. Sample use:
 
-java -cp lib/data.csv-0.1.2.jar:lib/enlive-1.1.1.jar:lib/tagsoup-1.2.1.jar:lib/clojure-1.5.1.jar clojure.main src/parser.clj samples/acm-page.html samples/acm-out.csv "query_content"
+java -cp lib/data.csv-0.1.2.jar:lib/enlive-1.1.1.jar:lib/tagsoup-1.2.1.jar:lib/clojure-1.5.1.jar clojure.main src/acm-parser.clj samples/acm-page.html samples/acm-out.csv "query_content"
 
 
 Screener

@@ -1,10 +1,11 @@
 ;; Screener script for csv metadata for different input formats.
 ;; Supported formats: IEEE, Springer, self-defined default.
 
-(ns ieee-fast-screener)
+(ns screener)
 (require '[clojure.data.csv :as csv])
 (require '[clojure.java.io :as io])
 (require '[clojure.string :as string])
+(require '[clojure.repl :as repl])
 (require '[net.cgrand.enlive-html :as html])
 
 ;; Parsing templates, define what column
@@ -25,12 +26,15 @@
 
 
   
-;;;;;;;;;;;;;;;;;;;
-;; IEEE template
-;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;
+;; Springer template
+;;;;;;;;;;;;;;;;;;;;;
 (defn x-abstract-from-page [url]
   (let [page (slurp url)]
-    (first (map html/text (html/select (html/html-snippet page) [:html :body :div#wrapper :div#content :div#kb-nav--main :div#kb-nav--main :div.abstract-content.formatted :p.a-plus-plus])))))
+    (first (map html/text (html/select (html/html-snippet page) 
+         [:html :body :div#wrapper :div#content 
+          :div#kb-nav--main :div#kb-nav--main 
+          :div.abstract-content.formatted :p.a-plus-plus])))))
 (def springer-template {
   :separator \,
   :year 7
@@ -74,8 +78,7 @@
 (def csv-output (nth *command-line-args* 1))
 
 (defn read-input [file] 
-  (doall 
-    (csv/read-csv file :separator (current-template :separator))))
+  (csv/read-csv file :separator (current-template :separator)))
 
 (defn write-output [file output]
   (csv/write-csv file output))
@@ -113,9 +116,15 @@
 (defn screen [in-file out-file] 
   (let [input (read-input in-file)]
     (write-headers (first input) out-file)
-    (review (rest (rest input)) 1 (- (count input) 2) out-file)))
+    (try 
+      (review (rest (rest input)) 1 (- (count input) 2) out-file)
+      (catch Exception e (println "Review interrupted.")))))
+
+(defn print-exit-instructions []
+  (println "Hit Ctrl-D to save and exit."))
 
 (with-open [out-file (io/writer csv-output)
             in-file (io/reader csv-input)] 
+  (print-exit-instructions)
+  (repl/set-break-handler! (fn [sig] (print-exit-instructions)))
   (screen in-file out-file))
-

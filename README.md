@@ -25,7 +25,7 @@ java -cp "lib/*" clojure.main src/screener.clj samples/ieee.clojure.csv samples/
 
 Screening csv files provided by Springer:
     
-java -cp "lib/*" clojure.main src/screener.clj samples/springer.clojure.csv samples/springer.sclojure.screened.csv "springer" 
+java -cp "lib/*" clojure.main src/screener.clj samples/springer.clojure.csv samples/springer.clojure.screened.csv "springer" 
 
 
 Screening csv files following a default template (such as the ones created by the acm parser above):

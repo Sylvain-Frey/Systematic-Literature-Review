@@ -2,9 +2,9 @@ Systematic-Literature-Review
 ============================
 
 Data extration and processing tools for a Systematic Literature Review:
-    - extract paper metadata from HTML pages (ACM online library).
-    - format heterogeneous CSV metadata (Springer, IEEE) to a common CSV template.
-    - screen metadata : review paper abstract, title... and filter irrelevant papers out.
+- extract paper metadata from HTML pages (ACM online library).
+- format heterogeneous CSV metadata (Springer, IEEE) to a common CSV template.
+- screen metadata : review paper abstract, title... and filter irrelevant papers out.
 
 This documentation shows some sample runs using data in the samples/ folder.
 
@@ -13,11 +13,11 @@ ACM formatter
 -------------
 
 This script extracts metadata from ACM pages:
-    - run search queries manually and save the resulting HTML on disk (maximum 20 papers per page).
-    - concatenate all pages together. 
-    - run acm-formatter to generate CSV from the HTML. 
+- run search queries manually and save the resulting HTML on disk (maximum 20 papers per page).
+- concatenate all pages together. 
+- run acm-formatter to generate CSV from the HTML. 
 
-Usage: acm-formatter <input-file> <output-file> <query>
+Usage: acm-formatter "input-file" "output-file" "query"
 
 Example:
 
@@ -30,7 +30,7 @@ CSV formatter
 
 Convert CSV files provided by online libraries (IEEE, Springer) into a common CSV template. Formatting also creates a unique ID per paper, namely "year"-"1st author"-"1st word in title", useful for detecting duplicates.
 
-Usage: csv-formatter <input-file> <output-file> <format> <query>
+Usage: csv-formatter "input-file" "output-file" "format" "query"
 
 Examples:
     
@@ -48,7 +48,7 @@ Given a CSV file filled with paper metadata, screener goes through each paper, s
 
 Screener supports several CSV formats as input: IEEE, Springer, and custom.
 
-Usage: screener <input-file> <output-file> <format>
+Usage: screener "input-file" "output-file" "format"
 
 Examples:
 

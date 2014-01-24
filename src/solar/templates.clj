@@ -42,10 +42,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 (def default { 
   :separator \,
+  :id 0
   :year 1
   :authors 2
   :title 3
   :abstract 4
+  :library 5
+  :search-term 6
   :url 7
   :parse (fn [line tag] (nth line (default tag)))
 })

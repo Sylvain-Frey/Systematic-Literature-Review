@@ -33,6 +33,7 @@
     "springer" templates/springer
     templates/default))
 
+
 ;; IO functions
 
 (defn parse [tag line] 
@@ -59,22 +60,22 @@
   
 (defn format* [input output]
   (let [line (first input)] 
-    (when line
-      (write-output output [[ 
-                               (generate-id-from line)
-                               (parse :year line)
-                               (parse :authors line)
-                               (parse :title line)
-                               (parse :abstract line)
-                               template-name
-                               search-term
-                               (parse :url line)
-                               ]])
-      (recur (rest input) output))))
+    (if line
+      (let [id (generate-id-from line)]
+        (write-output output [[ 
+                   (generate-id-from line)
+                   (parse :year line)
+                   (parse :authors line)
+                   (parse :title line)
+                   (parse :abstract line)
+                   template-name
+                   search-term
+                   (parse :url line)]])
+        (recur (rest input) output)))))
 
 (with-open [out-file (io/writer output)
             in-file (io/reader input)]
-  (write-headers out-file)
   (let [input (read-input in-file)]
-    (format* (rest (rest input)) out-file)))
+    (write-headers out-file)
+    (format*  (rest (rest input)) out-file)))
     

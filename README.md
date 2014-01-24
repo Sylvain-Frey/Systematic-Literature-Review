@@ -1,7 +1,7 @@
 Systematic-Literature-Review
 ============================
 
-Data extration and processing tools for a Systematic Literature Review:
+Data extraction and processing tools for a Systematic Literature Review:
 - extract paper metadata from HTML pages (ACM online library).
 - format heterogeneous CSV metadata (Springer, IEEE) to a common CSV template.
 - screen metadata : review paper abstract, title... and filter irrelevant papers out.

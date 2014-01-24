@@ -1,5 +1,6 @@
 ;; Formatting script for CSV metadata for different input formats.
-;; Supported input formats: IEEE CSV, Springer CSV, self-defined default CSV.
+;; Supported input formats: IEEE CSV, Springer CSV, 
+;; ISI Web of Science, self-defined default CSV.
 ;; Output format: self-defined CSV.
 
 (ns solar.csv-formatter
@@ -19,6 +20,7 @@
     (println)
     (println "Examples: csv-formatter ieee.csv ieee.formatted.csv ieee my_query")
     (println "          csv-formatter springer.csv springer.formatted.csv springer my_query")
+    (println "          csv-formatter isiwos.csv isiwos.formatted.csv isiwos my_query")
     (println)
     (System/exit 0)))
 
@@ -31,6 +33,7 @@
   (case template-name
     "ieee" templates/ieee
     "springer" templates/springer
+    "isiwos" templates/isiwos
     templates/default))
 
 
@@ -50,20 +53,13 @@
   
   
 ;; main steps
-
-(defn generate-id-from [line]
-  (string/join "-" [
-    (.substring (parse :year line) 2 4)
-    (last (string/split (first (string/split (parse :authors line) #",")) #" "))
-    (first (string/split (parse :title line) #" "))
-    ]))
   
 (defn format* [input output]
   (let [line (first input)] 
     (if line
-      (let [id (generate-id-from line)]
+      (let [id (current-template :generate-id-from line)]
         (write-output output [[ 
-                   (generate-id-from line)
+                   ((current-template :generate-id-from) line)
                    (parse :year line)
                    (parse :authors line)
                    (parse :title line)
@@ -77,5 +73,5 @@
             in-file (io/reader input)]
   (let [input (read-input in-file)]
     (write-headers out-file)
-    (format*  (rest (rest input)) out-file)))
+    (format*  (rest input) out-file)))
     

@@ -66,7 +66,7 @@
             in-file (io/reader input)]
   (write-headers out-file)
   (let [input (read-input in-file)
-        raw-ids (format* (rest (rest input)) (hash-map) out-file)
+        raw-ids (format* (rest input) (hash-map) out-file)
         duplicates (filter #(> (second %) 1) raw-ids)]
     (println "Input file contained" (reduce + 0 (vals raw-ids)) "references")
     (println "Found" (- (reduce + 0 (vals duplicates)) (count duplicates)) "duplicates:")

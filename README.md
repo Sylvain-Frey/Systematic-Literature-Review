@@ -41,6 +41,15 @@ Formatting Springer CSV takes time since the script downloads paper abstracts fr
 
 
 
+Duplicate filter
+----------------
+
+Filter duplicates from a metadata CSV file in standard format.
+
+Example: duplicate-filter "input.csv" "output.csv"
+
+
+
 Screener
 --------
 

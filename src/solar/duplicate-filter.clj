@@ -47,7 +47,7 @@
 (defn generate-accurate-id-from [line]
   (string/join "-" [
     (.substring (parse :year line) 2 4)
-    (parse :authors line)
+    ;;(parse :authors line)
     (parse :title line)
     ]))
  

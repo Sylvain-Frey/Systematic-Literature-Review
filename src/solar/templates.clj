@@ -46,7 +46,7 @@
 
   :generate-id-from (fn [line]
                       (string/join "-" [
-                        (.substring line 2 4)
+                        (.substring ((springer :parse) line :year) 2 4)
                         (last (string/split (first (string/split ((springer :parse) line :authors) #",")) #" "))
                         (first (string/split ((springer :parse) line :title) #" "))
                         ]))

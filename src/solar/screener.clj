@@ -29,6 +29,7 @@
   (case (nth *command-line-args* 2) 
     "ieee" templates/ieee
     "springer" templates/springer
+    "acm" templates/acm
     templates/default))
 
 
@@ -88,4 +89,5 @@
             in-file (io/reader csv-input)] 
   (print-exit-instructions)
   (repl/set-break-handler! (fn [sig] (print-exit-instructions)))
-  (screen in-file out-file))
+  (screen in-file out-file)
+  (if (= current-template templates/acm) (shutdown-agents)))

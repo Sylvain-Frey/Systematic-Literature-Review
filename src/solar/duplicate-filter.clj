@@ -46,12 +46,12 @@
  
 (defn generate-accurate-id-from [line]
   (string/join "-" [
-    (.substring (parse :year line) 2 4)
+    (string/replace (parse :year line) #" " "")
     ;;(parse :authors line)
-    (parse :title line)
+    (string/replace (string/lower-case (string/replace (parse :title line) #" " "")) #"[^a-z]" "")
     ]))
  
-(defn format* [input ids output]
+(defn filter* [input ids output]
   (let [line (first input)] 
     (if line
       (let [id (generate-accurate-id-from line)]
@@ -66,7 +66,7 @@
             in-file (io/reader input)]
   (write-headers out-file)
   (let [input (read-input in-file)
-        raw-ids (format* (rest input) (hash-map) out-file)
+        raw-ids (filter* (rest input) (hash-map) out-file)
         duplicates (filter #(> (second %) 1) raw-ids)]
     (println "Input file contained" (reduce + 0 (vals raw-ids)) "references")
     (println "Found" (- (reduce + 0 (vals duplicates)) (count duplicates)) "duplicates:")

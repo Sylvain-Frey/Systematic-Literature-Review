@@ -1,6 +1,7 @@
 (ns solar.templates
   [:require [net.cgrand.enlive-html :as html]]
-  [:require [clojure.string :as string]])
+  [:require [clojure.string :as string]]
+  [:require [clojure.java.shell :as shell]])
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -51,6 +52,55 @@
                         (first (string/split ((springer :parse) line :title) #" "))
                         ]))
 })
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ACM template for stealing abstracts
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; example URLs:
+;; pdf http://dl.acm.org/ft_gateway.cfm?id=2398803&type=pdf&coll=DL&dl=ACM&CFID=286755835&CFTOKEN=86480529
+;; cit http://dl.acm.org/citation.cfm?id=2398776.2398803&coll=DL&dl=ACM&CFID=286755835&CFTOKEN=86480529
+;; get-page deduces the cit url form the pdf url 
+;; prefix DDD. in the id relates to a collection and can be omitted.
+
+(defn get-page [url]
+  (let [correct-url 
+        (str 
+         (string/replace 
+          (string/replace url "&type=pdf" "") 
+          "ft_gateway.cfm" "citation.cfm") 
+         "&preflayout=flat")]
+  (:out (shell/sh "elinks" "--dump" correct-url))))
+
+(defn x-abstract-from-acm [url]
+  (let [page (get-page url)]
+    (re-find #"ABSTRACT[^\[]*\[" (string/replace page "\n" ""))))
+
+(def acm {
+  :separator \,
+  :id 0
+  :year 1
+  :authors 2
+  :title 3
+  :abstract 4
+  :library 5
+  :search-term 6
+  :url 7
+
+  :parse (fn [line tag]
+    (case tag
+      :abstract (x-abstract-from-acm (nth line (acm :url)))
+      (nth line (acm tag))))
+
+  :generate-id-from (fn [line]
+                      (string/join "-" [
+                        (.substring ((acm :parse) line :year) 2 4)
+                        (last (string/split (first (string/split ((acm :parse) line :authors) #",")) #" "))
+                        (first (string/split ((acm :parse) line :title) #" "))
+                        ]))
+})
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

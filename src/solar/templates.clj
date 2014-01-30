@@ -61,6 +61,7 @@
 ;; example URLs:
 ;; pdf http://dl.acm.org/ft_gateway.cfm?id=2398803&type=pdf&coll=DL&dl=ACM&CFID=286755835&CFTOKEN=86480529
 ;; cit http://dl.acm.org/citation.cfm?id=2398776.2398803&coll=DL&dl=ACM&CFID=286755835&CFTOKEN=86480529
+;; abs http://dl.acm.org/tab_abstract.cfm?id=2398803&usebody=tabbody&cfid=404509037&cftoken=96850275
 ;; get-page deduces the cit url form the pdf url 
 ;; prefix DDD. in the id relates to a collection and can be omitted.
 

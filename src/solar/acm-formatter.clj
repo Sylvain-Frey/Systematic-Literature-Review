@@ -6,7 +6,8 @@
   [:require [clojure.string :as string]]
   [:require [net.cgrand.enlive-html :as html]]
   [:require [clojure.data.csv :as csv]]
-  [:require [solar.templates :as templates]])
+  [:require [solar.templates :as templates]]
+  [:require [org.httpkit.client :as http]])
   
 ;; check commmand line arguments
 
@@ -59,7 +60,7 @@
   (let [text (first (map html/text (html/select paper [:tr :td :a.medium-text])))]
     (if-not (string/blank? text) (purge text))))
 
-(defn x-abstract [paper]
+(defn x-abstract* [paper]
   (let [text (first (map html/text (html/select paper [:tr :td :div.abstract2])))]
     (if-not (string/blank? text) (purge text))))
 
@@ -74,6 +75,21 @@
                        [:tr :td :table :tbody 
                         :tr :td :table :tbody 
                         :tr :td :a])))))
+
+(defn abstract-url [url]
+  (let [id (re-find #"id=\d+" url)]
+    (str "http://dl.acm.org/tab_abstract.cfm?" id)))
+
+(defn x-abstract [paper]
+  (let [url (x-url paper)]
+    (if (string/blank? url)
+      (x-abstract* paper)
+      (let [abstract (http/get (abstract-url url))]
+        (Thread/sleep 2000) ;; shhhh... ACM crawl filter could hear us...
+        (purge
+         (reduce str "" 
+           (map html/text (html/html-snippet (:body @abstract)))))))))
+
     
 (defn x-id [paper] ;; id = year - author - first (significant? :s) word in title
   (string/join "-" [

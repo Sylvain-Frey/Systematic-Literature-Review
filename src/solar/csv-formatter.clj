@@ -7,7 +7,6 @@
   [:require [solar.io :as io]]
   [:require [clojure.java.io]]
   [:require [clojure.string :as string]]
-  [:require [net.cgrand.enlive-html :as html]]
   [:require [solar.templates :as templates]])
 
 

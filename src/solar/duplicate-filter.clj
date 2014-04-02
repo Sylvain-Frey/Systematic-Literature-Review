@@ -5,51 +5,35 @@
 
 
 (ns solar.duplicate-filter
-  [:require [clojure.java.io :as io]]
+  [:require [solar.io :as io]]
+  [:require [clojure.java.io]]
   [:require [clojure.string :as string]]
-  [:require [clojure.data.csv :as csv]]
   [:require [solar.templates :as templates]])
 
-;; check commmand line arguments
 
-(if (not= (count *command-line-args*) 2)
-  (do
-    (println)
-    (println "Usage: duplicate-filter <input-file> <output-file>")
-    (println)
-    (println "Example: duplicate-filter acm.formatted.csv acm.filtered.csv")
-    (println)
-    (System/exit 0)))
+;; Check command line arguments.
 
-(def input (nth *command-line-args* 0))
-(def output (nth *command-line-args* 1))
+(io/check-args
+  ['input 'output]
+  "
+  Usage: duplicate-filter <input-file> <output-file>
 
-(def current-template templates/default)
+  Example: duplicate-filter acm.formatted.csv acm.filtered.csv")
+
+(def template (templates/for-name "default"))
 
 
-;; IO functions
 
-(defn parse [tag line] 
-  ((current-template :parse) line tag))
-
-(defn read-input [file] 
-  (csv/read-csv file :separator (current-template :separator)))
-
-(defn write-output [file output]
-  (csv/write-csv file output))
-
-(defn write-headers [out-file]
-  (write-output out-file [templates/default-headers]))
-
-
-;; filter functions
+;; Filter functions.
  
 (defn generate-accurate-id-from [line]
   (string/join "-" [
-    (string/replace (parse :year line) #" " "")
-    ;;(parse :authors line)
-    (string/replace (string/lower-case (string/replace (parse :title line) #" " "")) #"[^a-z]" "")
-    ]))
+    (string/replace ((template :parse) :year line) #" " "")
+    (string/replace 
+      (string/lower-case 
+       (string/replace ((template :parse) :title line)  #" " "")) 
+    #"[^a-z]" "")
+  ]))
  
 (defn filter* [input ids output]
   (let [line (first input)] 
@@ -58,14 +42,17 @@
         (if (contains? ids id)
           (recur (rest input) (assoc ids id (+ (get ids id) 1)) output)
           (do
-            (write-output output [line])
+            (io/write-csv output line)
             (recur (rest input) (assoc ids id 1) output))))
       ids)))
 
-(with-open [out-file (io/writer output)
-            in-file (io/reader input)]
-  (write-headers out-file)
-  (let [input (read-input in-file)
+
+;; Main function.
+
+(with-open [out-file (clojure.java.io/writer output)
+            in-file (clojure.java.io/reader input)]
+  (io/write-default-headers out-file)
+  (let [input ((template :read) in-file)
         raw-ids (filter* (rest input) (hash-map) out-file)
         duplicates (filter #(> (second %) 1) raw-ids)]
     (println "Input file contained" (reduce + 0 (vals raw-ids)) "references")

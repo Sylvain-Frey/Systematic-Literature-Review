@@ -2,50 +2,31 @@
 ;; Supported input formats: IEEE, Springer, self-defined default.
 
 (ns solar.screener
-  [:require [clojure.data.csv :as csv]]
-  [:require [clojure.java.io :as io]]
+  [:require [solar.io :as io]]
+  [:require [clojure.java.io]]
   [:require [clojure.string :as string]]
   [:require [clojure.repl :as repl]]
   [:require [net.cgrand.enlive-html :as html]]
   [:require [solar.templates :as templates]])
 
 
-;; check command line arguments
+;; Check command line arguments.
 
-(if (not= (count *command-line-args*) 3)
-  (do
-    (println)
-    (println "Usage: screener <input-file> <output-file> <format>")
-    (println)
-    (println "Examples: screener ieee.csv ieee.screened.csv ieee")
-    (println "          screener springer.csv springer.screened.csv springer")
-    (println "          screener acm.csv acm.screened.csv default")
-    (println)
-    (System/exit 0)))
+(io/check-args
+  ['input 'output 'template-name]
+  "
+  Usage: screener <input-file> <output-file> <format>
+  
+  Examples: screener ieee.csv ieee.screened.csv ieee
+            screener springer.csv springer.screened.csv springer   
+            screener acm.csv acm.screened.csv default")
 
-(def csv-input (nth *command-line-args* 0))
-(def csv-output (nth *command-line-args* 1))
-(def current-template 
-  (case (nth *command-line-args* 2) 
-    "ieee" templates/ieee
-    "springer" templates/springer
-    "acm" templates/acm
-    templates/default))
+;; I/O functions.
 
-
-;; IO functions.
-
-(defn parse [tag line] 
-  ((current-template :parse) line tag))
-
-(defn read-input [file] 
-  (csv/read-csv file :separator (current-template :separator)))
-
-(defn write-output [file output]
-  (csv/write-csv file output))
+(def template (templates/for-name template-name))
 
 (defn write-headers [input-head out-file]
-  (write-output out-file [(conj input-head "Status" "Comments")]))
+  (io/write-csv out-file (conj input-head "Status" "Comments")))
 
 (defn read-status [status]
   (case (string/lower-case status)
@@ -66,28 +47,28 @@
     (when line 
       (println "\n\n\n")
       (println "Paper: " counter "/" total "\n")
-      (println "Year: " (parse :year line) "\n")
-      (println "Authors: " (parse :authors line) "\n")
-      (println "Title: " (parse :title line) "\n\n")
-      (println "Abstract: " (parse :abstract line) "\n\n")
-      (println "URL: " (parse :url line) "\n\n")
+      (println "Year: " ((template :parse) :year line) "\n")
+      (println "Authors: " ((template :parse) :authors line) "\n")
+      (println "Title: " ((template :parse) :title line) "\n\n")
+      (println "Abstract: " ((template :parse) :abstract line) "\n\n")
+      (println "URL: " ((template :parse) :url line) "\n\n")
       (println "Accept/Borderline/Reject (A/B/R)?")
       (let [status (read-status (read-line))] 
         (println "Additional Comments?")
         (let [comments (read-line)]
-          (write-output out-file [(conj line status comments)])))
+          (io/write-csv out-file (conj line status comments))))
       (recur (rest input) (inc counter) total out-file))))
 
 (defn screen [in-file out-file] 
-  (let [input (read-input in-file)]
+  (let [input ((template :read) in-file)]
     (write-headers (first input) out-file)
     (try 
       (review (rest (rest input)) 1 (- (count input) 2) out-file)
       (catch Exception e (println "Review interrupted.")))))
 
-(with-open [out-file (io/writer csv-output)
-            in-file (io/reader csv-input)] 
+(with-open [out-file (clojure.java.io/writer output)
+            in-file (clojure.java.io/reader input)] 
   (print-exit-instructions)
   (repl/set-break-handler! (fn [sig] (print-exit-instructions)))
   (screen in-file out-file)
-  (if (= current-template templates/acm) (shutdown-agents)))
+  (if (= template templates/acm) (shutdown-agents)))

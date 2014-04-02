@@ -1,38 +1,47 @@
+;; Templates for parsing different file formats.
+
 (ns solar.templates
   [:require [net.cgrand.enlive-html :as html]]
   [:require [clojure.string :as string]]
-  [:require [clojure.java.shell :as shell]])
+  [:require [clojure.java.shell :as shell]]
+  [:require [clojure.data.csv :as csv]])
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; IEEE template for CSV files
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def ieee {
+
   :separator \,
   :year 5
   :authors 1
   :title 0
   :abstract 10
   :url 15
-  :parse (fn [line tag] (nth line (ieee tag)))
+
+  :read (fn [file] (csv/read-csv file :separator (ieee :separator)))
+  :parse (fn [tag line] (nth line (ieee tag)))
   :generate-id-from (fn [line]
                       (string/join "-" [
-                        (.substring ((ieee :parse) line :year) 2 4)
-                        (last (string/split (first (string/split ((ieee :parse) line :authors) #",")) #" "))
-                        (first (string/split ((ieee :parse) line :title) #" "))
+                        (.substring ((ieee :parse) :year line) 2 4)
+                        (last (string/split (first (string/split ((ieee :parse) :authors line) #",")) #" "))
+                        (first (string/split ((ieee :parse) :title line) #" "))
                         ]))
 })
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Springer template for CSV files
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn x-abstract-from-page [url]
   (let [page (slurp url)]
     (first (map html/text (html/select (html/html-snippet page) 
          [:html :body :div#wrapper :div#content 
           :div#kb-nav--main :div#kb-nav--main 
           :div.abstract-content.formatted :p.a-plus-plus])))))
+
 (def springer {
+
   :separator \,
   :year 7
   :authors 6
@@ -40,16 +49,17 @@
   :abstract :special
   :url 8
 
-  :parse (fn [line tag]
+  :read (fn [file] (csv/read-csv file :separator (springer :separator)))
+  :parse (fn [tag line]
     (case tag
       :abstract (x-abstract-from-page (nth line (springer :url)))
       (nth line (springer tag))))
 
   :generate-id-from (fn [line]
                       (string/join "-" [
-                        (.substring ((springer :parse) line :year) 2 4)
-                        (last (string/split (first (string/split ((springer :parse) line :authors) #",")) #" "))
-                        (first (string/split ((springer :parse) line :title) #" "))
+                        (.substring ((springer :parse) :year line) 2 4)
+                        (last (string/split (first (string/split ((springer :parse) :authors line) #",")) #" "))
+                        (first (string/split ((springer :parse) :title line) #" "))
                         ]))
 })
 
@@ -79,6 +89,7 @@
     (re-find #"ABSTRACT[^\[]*\[" (string/replace page "\n" ""))))
 
 (def acm {
+
   :separator \,
   :id 0
   :year 1
@@ -89,16 +100,17 @@
   :search-term 6
   :url 7
 
-  :parse (fn [line tag]
+  :read (fn [file] (csv/read-csv file :separator (acm :separator)))
+  :parse (fn [tag line]
     (case tag
       :abstract (x-abstract-from-acm (nth line (acm :url)))
       (nth line (acm tag))))
 
   :generate-id-from (fn [line]
                       (string/join "-" [
-                        (.substring ((acm :parse) line :year) 2 4)
-                        (last (string/split (first (string/split ((acm :parse) line :authors) #",")) #" "))
-                        (first (string/split ((acm :parse) line :title) #" "))
+                        (.substring ((acm :parse) :year line) 2 4)
+                        (last (string/split (first (string/split ((acm :parse) :authors line) #",")) #" "))
+                        (first (string/split ((acm :parse) :title line) #" "))
                         ]))
 })
 
@@ -108,19 +120,21 @@
 ;; ISI Web of Science template for CSV files
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def isiwos {
+
   :separator \tab
   :year 31
   :authors 1
   :title 9
   :abstract 32
   :url 47
-  :parse (fn [line tag] (nth line (isiwos tag)))
 
+  :read (fn [file] (csv/read-csv file :separator (isiwos :separator)))
+  :parse (fn [tag line] (nth line (isiwos tag)))
   :generate-id-from (fn [line]
                       (string/join "-" [
-                        (.substring ((isiwos :parse) line :year) 2 4)
-                        (first (string/split ((isiwos :parse) line :authors) #","))
-                        (first (string/split ((isiwos :parse) line :title) #" "))
+                        (.substring ((isiwos :parse) :year line) 2 4)
+                        (first (string/split ((isiwos :parse) :authors line) #","))
+                        (first (string/split ((isiwos :parse) :title line) #" "))
                         ]))
 })
   
@@ -130,6 +144,7 @@
 ;; default CSV template
 ;;;;;;;;;;;;;;;;;;;;;;;
 (def default { 
+
   :separator \,
   :id 0
   :year 1
@@ -139,8 +154,9 @@
   :library 5
   :search-term 6
   :url 7
-  :parse (fn [line tag] (nth line (default tag)))
 
+  :read (fn [file] (csv/read-csv file :separator (default :separator)))
+  :parse (fn [tag line] (nth line (default tag)))
   :generate-id-from (fn [line]
                       (string/join "-" [
                         (.substring ((default :parse) :year line) 2 4)
@@ -150,3 +166,16 @@
 })
 
 (def default-headers ["id" "year" "author" "title" "abstract" "library" "search_term" "url"])
+
+
+
+
+
+;; Map templates names to actual templates.
+
+(defn for-name [template-name]
+  (case template-name
+    "ieee" ieee
+    "springer" springer
+    "isiwos" isiwos
+    default))

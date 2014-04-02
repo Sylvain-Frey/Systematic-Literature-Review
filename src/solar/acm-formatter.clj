@@ -2,39 +2,24 @@
 ;; Output format: self-defined CSV.
 
 (ns solar.acm-parser
-  [:require [clojure.java.io :as io]]
+  [:require [solar.io :as io]]
+  [:require [clojure.java.io]]
   [:require [clojure.string :as string]]
   [:require [net.cgrand.enlive-html :as html]]
-  [:require [clojure.data.csv :as csv]]
   [:require [solar.templates :as templates]]
   [:require [org.httpkit.client :as http]])
   
-;; check commmand line arguments
+;; Check command line arguments.
 
-(if (not= (count *command-line-args*) 3)
-  (do
-    (println)
-    (println "Usage: acm-formatter <input-file> <output-file> <query>")
-    (println)
-    (println "Example: acm-formatter acm.html acm.formatted.csv acm my_query")
-    (println)
-    (System/exit 0)))
+(io/check-args
+  ['input 'output 'search-term]
+  "
+  Usage: acm-formatter <input-file> <output-file> <query>
 
-(def input (nth *command-line-args* 0))
-(def output (nth *command-line-args* 1))
-(def search-term (nth *command-line-args* 2))
+  Example: acm-formatter acm.html acm.formatted.csv my_query")
 
 
-;; IO functions
-
-(defn read-input [file-name]
-  (slurp file-name))
-
-(defn write-output [file output]
-  (csv/write-csv file [output]))
-
-
-;; data extraction functions
+;; Data extraction functions.
 
 (defn x-papers [acm-page]
   (html/select (html/html-snippet acm-page) 
@@ -104,21 +89,19 @@
 (def handlers [x-id x-year x-author x-title x-abstract x-library x-search-term x-url])
 
 
-;; main steps
 
-(defn write-headers [out-file]
-  (write-output out-file templates/default-headers))
+;; Main functions.
   
 (defn extract [in-file out-file]
   (doseq [paper (x-papers in-file)]
     ;; if author empty, it's a false match of x-papers, discard it
     (let [author-text (x-author paper)]
       (if-not (string/blank? author-text)
-        (write-output out-file 
+        (io/write-csv out-file 
           (map #(% paper) handlers))))))
 
-(let [in-file (read-input input)]
-  (with-open [out-file (io/writer output)]
-    (write-headers out-file)
+(let [in-file (slurp input)]
+  (with-open [out-file (clojure.java.io/writer output)]
+    (io/write-default-headers out-file)
     (extract in-file out-file)))
     

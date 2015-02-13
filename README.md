@@ -37,6 +37,8 @@ Formatting also creates a unique ID per paper, namely "year"-"1st author"-"1st w
 
 Usage: csv-formatter "input-file" "output-file" "format" "query"
 
+Available input templates: ieee, springer, isiwos (cf. src/solar/templates.clj)
+
 Examples:
     
     ./solar.sh src/solar/csv-formatter.clj samples/ieee.clojure.csv samples/ieee.clojure.formatted.csv ieee clojure

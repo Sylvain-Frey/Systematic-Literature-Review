@@ -66,7 +66,7 @@
       (catch Exception e (println "Review interrupted.")))))
 
 (with-open [out-file (clojure.java.io/writer output)
-            in-file (clojure.java.io/reader input)] 
+            in-file  (clojure.java.io/reader input)] 
   (print-exit-instructions)
   (repl/set-break-handler! (fn [sig] (print-exit-instructions)))
   (screen in-file out-file)

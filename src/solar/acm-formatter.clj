@@ -80,8 +80,7 @@
   (string/join "-" [
     (.substring (x-year paper) 2 4)
     (last (string/split (first (string/split (x-author paper) #",")) #" "))
-    (first (string/split (x-title paper) #" "))
-  ]))
+    (first (string/split (x-title paper) #" "))]))
 
 ;; csv layout convention:
 ;; id, year, author, title, abstract, library, search_term, url

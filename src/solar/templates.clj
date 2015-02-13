@@ -13,20 +13,19 @@
 (def ieee {
 
   :separator \,
-  :year 5
-  :authors 1
-  :title 0
+  :year      5
+  :authors   1
+  :title     0
   :abstract 10
-  :url 15
+  :url      15
 
-  :read (fn [file] (csv/read-csv file :separator (ieee :separator)))
-  :parse (fn [tag line] (nth line (ieee tag)))
+  :read             (fn [file] (csv/read-csv file :separator (ieee :separator)))
+  :parse            (fn [tag line] (nth line (ieee tag)))
   :generate-id-from (fn [line]
                       (string/join "-" [
                         (.substring ((ieee :parse) :year line) 2 4)
                         (last (string/split (first (string/split ((ieee :parse) :authors line) #",")) #" "))
-                        (first (string/split ((ieee :parse) :title line) #" "))
-                        ]))
+                        (first (string/split ((ieee :parse) :title line) #" "))]))
 })
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -43,24 +42,23 @@
 (def springer {
 
   :separator \,
-  :year 7
-  :authors 6
-  :title 0
-  :abstract :special
-  :url 8
+  :year      7
+  :authors   6
+  :title     0
+  :abstract  :special
+  :url       8
 
-  :read (fn [file] (csv/read-csv file :separator (springer :separator)))
-  :parse (fn [tag line]
-    (case tag
-      :abstract (x-abstract-from-page (nth line (springer :url)))
-      (nth line (springer tag))))
+  :read      (fn [file] (csv/read-csv file :separator (springer :separator)))
+  :parse     (fn [tag line]
+               (case tag
+                 :abstract (x-abstract-from-page (nth line (springer :url)))
+                 (nth line (springer tag))))
 
   :generate-id-from (fn [line]
                       (string/join "-" [
                         (.substring ((springer :parse) :year line) 2 4)
                         (last (string/split (first (string/split ((springer :parse) :authors line) #",")) #" "))
-                        (first (string/split ((springer :parse) :title line) #" "))
-                        ]))
+                        (first (string/split ((springer :parse) :title line) #" "))]))
 })
 
 
@@ -90,28 +88,27 @@
 
 (def acm {
 
-  :separator \,
-  :id 0
-  :year 1
-  :authors 2
-  :title 3
-  :abstract 4
-  :library 5
+  :separator   \,
+  :id          0
+  :year        1
+  :authors     2
+  :title       3
+  :abstract    4
+  :library     5
   :search-term 6
-  :url 7
+  :url         7
 
-  :read (fn [file] (csv/read-csv file :separator (acm :separator)))
-  :parse (fn [tag line]
-    (case tag
-      :abstract (x-abstract-from-acm (nth line (acm :url)))
-      (nth line (acm tag))))
+  :read        (fn [file] (csv/read-csv file :separator (acm :separator)))
+  :parse       (fn [tag line]
+                 (case tag
+                   :abstract (x-abstract-from-acm (nth line (acm :url)))
+                   (nth line (acm tag))))
 
   :generate-id-from (fn [line]
                       (string/join "-" [
                         (.substring ((acm :parse) :year line) 2 4)
                         (last (string/split (first (string/split ((acm :parse) :authors line) #",")) #" "))
-                        (first (string/split ((acm :parse) :title line) #" "))
-                        ]))
+                        (first (string/split ((acm :parse) :title line) #" "))]))
 })
 
 
@@ -121,21 +118,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def isiwos {
 
-  :separator \tab
-  :year 31
-  :authors 1
-  :title 9
-  :abstract 32
-  :url 47
+  :separator  \tab
+  :year      31
+  :authors    1
+  :title      9
+  :abstract  32
+  :url       47
 
-  :read (fn [file] (csv/read-csv file :separator (isiwos :separator)))
+  :read  (fn [file] (csv/read-csv file :separator (isiwos :separator)))
   :parse (fn [tag line] (nth line (isiwos tag)))
+
   :generate-id-from (fn [line]
                       (string/join "-" [
                         (.substring ((isiwos :parse) :year line) 2 4)
                         (first (string/split ((isiwos :parse) :authors line) #","))
-                        (first (string/split ((isiwos :parse) :title line) #" "))
-                        ]))
+                        (first (string/split ((isiwos :parse) :title line) #" "))]))
 })
   
 
@@ -145,24 +142,24 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 (def default { 
 
-  :separator \,
-  :id 0
-  :year 1
-  :authors 2
-  :title 3
-  :abstract 4
-  :library 5
+  :separator   \,
+  :id          0
+  :year        1
+  :authors     2
+  :title       3
+  :abstract    4
+  :library     5
   :search-term 6
-  :url 7
+  :url         7
 
-  :read (fn [file] (csv/read-csv file :separator (default :separator)))
+  :read  (fn [file] (csv/read-csv file :separator (default :separator)))
   :parse (fn [tag line] (nth line (default tag)))
+
   :generate-id-from (fn [line]
                       (string/join "-" [
                         (.substring ((default :parse) :year line) 2 4)
                         (last (string/split (first (string/split ((default :parse) :authors line) #",")) #" "))
-                        (first (string/split ((default :parse) :title line) #" "))
-                        ]))
+                        (first (string/split ((default :parse) :title line) #" "))]))
 })
 
 (def default-headers ["id" "year" "author" "title" "abstract" "library" "search_term" "url"])

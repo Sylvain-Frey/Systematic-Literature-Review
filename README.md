@@ -3,7 +3,8 @@ Systematic-Literature-Review
 
 Data extraction and processing tools for a Systematic Literature Review:
 - extract paper metadata from HTML pages (ACM online library).
-- format heterogeneous CSV metadata (Springer, IEEE, ISI Web of Science) to a common CSV template.
+- format heterogeneous CSV metadata (Springer, IEEE, ISI Web of Science) to a common CSV template:
+       "id, year, authors, title, abstract, library, search-term, url"
 - screen metadata : review paper abstract, title... and filter irrelevant papers out.
 
 This documentation shows some sample runs using data in the samples/ folder.
@@ -28,7 +29,11 @@ Example:
 CSV formatter
 -------------
 
-Convert CSV files provided by online libraries (IEEE, Springer, ISI Web of Science) into a common CSV template. Formatting also creates a unique ID per paper, namely "year"-"1st author"-"1st word in title", useful for detecting duplicates.
+Convert CSV files provided by online libraries (IEEE, Springer, ISI Web of Science) into a common CSV template:
+
+    Template:   "id, year, authors, title, abstract, library, search-term, url"
+
+Formatting also creates a unique ID per paper, namely "year"-"1st author"-"1st word in title", useful for detecting duplicates.
 
 Usage: csv-formatter "input-file" "output-file" "format" "query"
 
@@ -72,11 +77,11 @@ Examples:
 Known issues
 ------------
 
-Due to Springer screwing up author names, IDs generated for Springer papers may not match their duplicates.
+Due to Springer weird template for author names, IDs generated for Springer papers may not match their duplicates.
 
 ACM pages sometimes provide partial abstracts.
 
-ISI Web of Science CSV files are not UTF-8: it screws the formatter up. Convert to UTF-8 before formatting.
+ISI Web of Science CSV files are not UTF-8: the formatter does not like it. Convert to UTF-8 before formatting.
 
 
 Questions, support

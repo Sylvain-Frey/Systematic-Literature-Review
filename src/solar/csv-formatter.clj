@@ -26,24 +26,23 @@
 
   
 ;; Main functions.
-  
+
 (defn format* [input output]
-  (let [line (first input)] 
-    (if line
-      (let [id (template :generate-id-from line)]
-        (io/write-csv output [ 
-                   ((template :generate-id-from) line)
-                   ((template :parse) :year line)
-                   ((template :parse) :authors line)
-                   ((template :parse) :title line)
-                   ((template :parse) :abstract line)
-                   template-name
-                   search-term
-                   ((template :parse) :url line)])
-        (recur (rest input) output)))))
+  (if-let [line (first input)] 
+    (let [id (template :generate-id-from line)]
+      (io/write-csv output [ 
+                            ((template :generate-id-from) line)
+                            ((template :parse) :year line)
+                            ((template :parse) :authors line)
+                            ((template :parse) :title line)
+                            ((template :parse) :abstract line)
+                            template-name
+                            search-term
+                            ((template :parse) :url line)])
+      (recur (rest input) output))))
 
 (with-open [out-file (clojure.java.io/writer output)
-            in-file (clojure.java.io/reader input)]
+            in-file  (clojure.java.io/reader input)]
   (let [input ((template :read) in-file)]
     (io/write-default-headers out-file)
     (format*  (rest input) out-file)))
